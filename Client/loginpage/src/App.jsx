@@ -1,0 +1,37 @@
+import React from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import HospitalLogin from './pages/auth/HospitalLogin';
+import PatientRegister from './pages/auth/PatientRegister';
+import DoctorRegister from './pages/auth/DoctorRegister';
+import AdminRegister from './pages/auth/AdminRegister';
+import PatientPortal from './components/patient/PatientPortal';
+import AdminPortal from './components/admin/AdminPortal';
+
+export default function App() {
+  const location = useLocation();
+
+  // ─── Patient Module ────────────────────────────────────────
+  // PatientPortal handles its own auth guard internally.
+  if (location.pathname.startsWith('/patient')) {
+    return <PatientPortal />;
+  }
+
+  // ─── Admin Module ──────────────────────────────────────────
+  // AdminPortal handles its own auth guard internally.
+  if (location.pathname.startsWith('/admin')) {
+    return <AdminPortal />;
+  }
+
+  // ─── Login / Register pages ────────────────────────────────
+  return (
+    <div className="min-h-screen bg-[#F4F9FC] text-[#102A43]">
+      <Routes>
+        <Route path="/" element={<HospitalLogin />} />
+        <Route path="/register/patient" element={<PatientRegister />} />
+        <Route path="/register/doctor" element={<DoctorRegister />} />
+        <Route path="/register/admin" element={<AdminRegister />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
+}
