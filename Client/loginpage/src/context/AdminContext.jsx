@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   initialAdminProfile,
   initialHospitalInfo,
@@ -9,11 +9,17 @@ import {
   initialNotifications,
   initialActivities
 } from '../data/adminMockData';
+import { authService } from '../services/authService';
 
 const AdminContext = createContext();
 
 export const AdminProvider = ({ children }) => {
-  const [adminProfile, setAdminProfile] = useState(initialAdminProfile);
+  const currentAdmin = authService.getCurrentAdmin();
+  const defaultProfile = currentAdmin 
+    ? { ...initialAdminProfile, name: currentAdmin.name, email: currentAdmin.email, role: currentAdmin.role } 
+    : initialAdminProfile;
+
+  const [adminProfile, setAdminProfile] = useState(defaultProfile);
   const [hospitalInfo, setHospitalInfo] = useState(initialHospitalInfo);
   const [doctors, setDoctors] = useState(initialDoctors);
   const [doctorRequests, setDoctorRequests] = useState(initialDoctorRequests);

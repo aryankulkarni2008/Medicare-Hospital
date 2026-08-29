@@ -11,21 +11,18 @@ export default function AdminLoginForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
 
-    // Simulate a brief validation delay for UX polish
-    setTimeout(() => {
-      const result = authService.authenticateAdmin(email, password);
-      if (result.success) {
-        navigate('/admin/dashboard');
-      } else {
-        setErrorMessage(result.message);
-        setIsLoading(false);
-      }
-    }, 400);
+    const result = await authService.authenticateAdmin(email, password);
+    if (result.success) {
+      navigate('/admin/dashboard');
+    } else {
+      setErrorMessage(result.message);
+      setIsLoading(false);
+    }
   };
 
   return (

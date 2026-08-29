@@ -1,10 +1,47 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, ArrowLeft, Info } from 'lucide-react';
+import { authService } from '../../services/authService';
 
 export default function AdminRegister() {
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  
+  const [formData, setFormData] = useState({
+    fullName: '',
+    employeeId: '',
+    department: '',
+    jobRole: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
+  });
+  
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    const result = await authService.registerAdmin(formData);
+    if (result.success) {
+      navigate('/');
+    } else {
+      setErrorMessage(result.message);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -34,48 +71,55 @@ export default function AdminRegister() {
           </p>
         </div>
 
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-md flex items-start gap-2">
+            <span className="mt-0.5 flex-shrink-0">⚠</span>
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Full Name</label>
-              <input type="text" required placeholder="Staff Member Name" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required placeholder="Staff Member Name" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Employee ID</label>
-              <input type="text" required placeholder="EMP-8092" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="text" name="employeeId" value={formData.employeeId} onChange={handleChange} required placeholder="EMP-8092" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Department</label>
-              <input type="text" required placeholder="Administration / Reception" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="text" name="department" value={formData.department} onChange={handleChange} required placeholder="Administration / Reception" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Job Role</label>
-              <input type="text" required placeholder="Hospital Administrator" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="text" name="jobRole" value={formData.jobRole} onChange={handleChange} required placeholder="Hospital Administrator" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Email Address</label>
-              <input type="email" required placeholder="staff@medicare.com" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="staff@medicare.com" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Phone Number</label>
-              <input type="tel" required placeholder="+1 (555) 900-1122" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required placeholder="+1 (555) 900-1122" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Password</label>
-              <input type="password" required placeholder="••••••••" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
             <div>
               <label className="block text-xs font-bold text-[#102A43] uppercase mb-1">Confirm Password</label>
-              <input type="password" required placeholder="••••••••" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
+              <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="••••••••" className="w-full px-3.5 py-2.5 bg-white border border-[#D9E6EC] rounded-md text-sm text-[#102A43]" />
             </div>
           </div>
 
@@ -86,9 +130,10 @@ export default function AdminRegister() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-[#2490C9] hover:bg-[#126B9E] text-white font-semibold rounded-md shadow-sm transition-all duration-200"
+            disabled={isLoading}
+            className="w-full py-3 px-4 bg-[#2490C9] hover:bg-[#126B9E] disabled:opacity-60 text-white font-semibold rounded-md shadow-sm transition-all duration-200"
           >
-            Submit Staff Registration
+            {isLoading ? 'Registering...' : 'Submit Staff Registration'}
           </button>
 
           <div className="text-center text-sm text-[#64748B] pt-2">
@@ -102,4 +147,4 @@ export default function AdminRegister() {
       </div>
     </div>
   );
-}
+}

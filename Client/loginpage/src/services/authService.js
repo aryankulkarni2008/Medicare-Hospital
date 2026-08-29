@@ -115,24 +115,68 @@ export const authService = {
   },
 
   // ─── ADMIN AUTH ───────────────────────────────────────────
-  authenticateAdmin(email, password) {
-    if (
-      email.toLowerCase().trim() === ADMIN_CREDENTIALS.email.toLowerCase() &&
-      password === ADMIN_CREDENTIALS.password
-    ) {
-      const user = {
-        name: ADMIN_CREDENTIALS.name,
-        email: ADMIN_CREDENTIALS.email,
-        role: ADMIN_CREDENTIALS.role,
-        isAuthenticated: true
-      };
-      localStorage.setItem('medicare_admin_user', JSON.stringify(user));
-      return { success: true, user };
+  async authenticateAdmin(email, password) {
+    try {
+      const response = await fetch('http://localhost:5000/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const user = {
+          id: data._id,
+          name: data.fullName,
+          email: data.email,
+          role: data.role,
+          token: data.token,
+          isAuthenticated: true,
+        };
+        localStorage.setItem('medicare_admin_user', JSON.stringify(user));
+        return { success: true, user };
+      } else {
+        return { success: false, message: data.message || 'Invalid email or password.' };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, message: 'Server error. Please try again later.' };
     }
-    return {
-      success: false,
-      message: 'Invalid Admin email or password. Please check your credentials and try again.'
-    };
+  },
+
+  async registerAdmin(adminData) {
+    try {
+      const response = await fetch('http://localhost:5000/api/admin/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(adminData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const user = {
+          id: data._id,
+          name: data.fullName,
+          email: data.email,
+          role: 'admin',
+          token: data.token,
+          isAuthenticated: true,
+        };
+        localStorage.setItem('medicare_admin_user', JSON.stringify(user));
+        return { success: true, user };
+      } else {
+        return { success: false, message: data.message || 'Registration failed.' };
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      return { success: false, message: 'Server error. Please try again later.' };
+    }
   },
 
   getCurrentAdmin() {
