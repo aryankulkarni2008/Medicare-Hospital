@@ -1,4 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+@source "../../Doctor module/src";
 
 /* ─── Loginpage / Patient Module base styles ─────────────────── */
 @layer base {
@@ -7,6 +9,19 @@
     color: #102A43;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
+}
+
+/* ─── Doctor Module Tailwind CSS v4 theme tokens ─────────────── */
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-medicare-primary: #2490C9;
+  --color-medicare-primary-hover: #126B9E;
+  --color-medicare-bg-main: #FFFFFF;
+  --color-medicare-bg-light: #F4F9FC;
+  --color-medicare-bg-card: #E6F4FA;
+  --color-medicare-text-main: #102A43;
+  --color-medicare-text-secondary: #64748B;
+  --color-medicare-border: #D9E6EC;
 }
 
 /* ─── Admin Module Tailwind CSS v4 theme tokens ──────────────── */

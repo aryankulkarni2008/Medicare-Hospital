@@ -1,18 +1,33 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserCheck, Lock } from 'lucide-react';
+import { authService } from '../../services/authService';
 
 export default function DoctorLoginForm() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [doctorId, setDoctorId] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
+    const res = authService.authenticateDoctor(doctorId, password);
+    if (res.success) {
+      navigate('/doctor/dashboard');
+    } else {
+      setError(res.message);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+      {error && (
+        <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm border border-red-100">
+          {error}
+        </div>
+      )}
       <div>
         <label className="block text-xs font-bold text-[#102A43] uppercase tracking-wider mb-1">
           Doctor ID

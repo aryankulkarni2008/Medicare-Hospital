@@ -24,6 +24,14 @@ const ADMIN_CREDENTIALS = {
   role: 'admin'
 };
 
+// ─── Doctor Demo Credentials ─────────────────────────────────
+const DOCTOR_CREDENTIALS = {
+  email: 'ajinkyashinde2008@gmail.com',
+  password: 'Ajinkya@123',
+  name: 'Ajinkya Shinde',
+  role: 'doctor'
+};
+
 export const authService = {
   // ─── PATIENT AUTH ─────────────────────────────────────────
   authenticatePatient(email, password) {
@@ -103,5 +111,42 @@ export const authService = {
 
   logoutAdmin() {
     localStorage.removeItem('medicare_admin_user');
+  },
+
+  // ─── DOCTOR AUTH ──────────────────────────────────────────
+  authenticateDoctor(email, password) {
+    if (
+      email.toLowerCase().trim() === DOCTOR_CREDENTIALS.email.toLowerCase() &&
+      password === DOCTOR_CREDENTIALS.password
+    ) {
+      const user = {
+        name: DOCTOR_CREDENTIALS.name,
+        email: DOCTOR_CREDENTIALS.email,
+        role: DOCTOR_CREDENTIALS.role,
+        isAuthenticated: true
+      };
+      localStorage.setItem('medicare_doctor_user', JSON.stringify(user));
+      return { success: true, user };
+    }
+    return {
+      success: false,
+      message: 'Invalid Doctor ID or password. Please check your credentials and try again.'
+    };
+  },
+
+  getCurrentDoctor() {
+    const userStr = localStorage.getItem('medicare_doctor_user');
+    if (userStr) {
+      try { return JSON.parse(userStr); } catch (e) { return null; }
+    }
+    return null;
+  },
+
+  isDoctorLoggedIn() {
+    return !!localStorage.getItem('medicare_doctor_user');
+  },
+
+  logoutDoctor() {
+    localStorage.removeItem('medicare_doctor_user');
   }
 };

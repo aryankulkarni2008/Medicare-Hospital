@@ -6,6 +6,8 @@ import DoctorRegister from './pages/auth/DoctorRegister';
 import AdminRegister from './pages/auth/AdminRegister';
 import PatientPortal from './components/patient/PatientPortal';
 import AdminPortal from './components/admin/AdminPortal';
+import DoctorPortal from '../../Doctor module/src/App';
+import { authService } from './services/authService';
 
 export default function App() {
   const location = useLocation();
@@ -20,6 +22,14 @@ export default function App() {
   // AdminPortal handles its own auth guard internally.
   if (location.pathname.startsWith('/admin')) {
     return <AdminPortal />;
+  }
+
+  // ─── Doctor Module ─────────────────────────────────────────
+  if (location.pathname.startsWith('/doctor')) {
+    if (!authService.isDoctorLoggedIn()) {
+      return <Navigate to="/" replace />;
+    }
+    return <DoctorPortal />;
   }
 
   // ─── Login / Register pages ────────────────────────────────
