@@ -40,7 +40,6 @@ export default function PatientPortal() {
 
   const loggedInUser = authService.getCurrentUser();
 
-  // Master State with session persistence check
   const [patient, setPatient] = useState(() => {
     const storedProfile = localStorage.getItem('medicare_patient_profile');
     if (storedProfile) {
@@ -50,10 +49,47 @@ export default function PatientPortal() {
     }
     return {
       ...initialPatient,
-      name: loggedInUser?.name || 'Aryan Kulkarni',
-      email: loggedInUser?.email || 'kulkarniaryan852@gmail.com'
+      name: loggedInUser?.name || '',
+      email: loggedInUser?.email || ''
     };
   });
+
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = loggedInUser?.token;
+        if (!token) return;
+
+        const res = await fetch('http://localhost:5000/api/patients/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const updatedPatient = {
+            ...patient,
+            name: data.fullName,
+            email: data.email,
+            phone: data.phone,
+            dob: data.dateOfBirth?.split('T')[0] || '',
+            gender: data.gender,
+            bloodGroup: data.bloodGroup || patient.bloodGroup,
+            height: data.height || patient.height,
+            weight: data.weight || patient.weight,
+            address: data.address,
+          };
+          setPatient(updatedPatient);
+          localStorage.setItem('medicare_patient_profile', JSON.stringify(updatedPatient));
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const [doctors, setDoctors] = useState(initialDoctors);
   const [appointments, setAppointments] = useState(initialAppointments);

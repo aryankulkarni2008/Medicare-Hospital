@@ -10,10 +10,10 @@ export default function PatientLoginForm() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
-    const result = authService.authenticatePatient(email, password);
+    const result = await authService.authenticatePatient(email, password);
     if (result.success) {
       navigate('/patient/dashboard');
     } else {
@@ -22,6 +22,7 @@ export default function PatientLoginForm() {
   };
 
   return (
+
     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
       {errorMessage && (
         <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-md">

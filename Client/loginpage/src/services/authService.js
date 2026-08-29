@@ -8,13 +8,7 @@
 // Then store the returned token in localStorage and use role-based routing.
 // ============================================================
 
-// ─── Patient Demo Credentials ────────────────────────────────
-const PATIENT_CREDENTIALS = {
-  email: 'kulkarniaryan852@gmail.com',
-  password: 'Aryan@2008',
-  name: 'Aryan Kulkarni',
-  role: 'patient'
-};
+const API_URL = 'http://localhost:5000/api/patients/';
 
 // ─── Admin Demo Credentials ──────────────────────────────────
 const ADMIN_CREDENTIALS = {
@@ -34,24 +28,68 @@ const DOCTOR_CREDENTIALS = {
 
 export const authService = {
   // ─── PATIENT AUTH ─────────────────────────────────────────
-  authenticatePatient(email, password) {
-    if (
-      email.toLowerCase().trim() === PATIENT_CREDENTIALS.email.toLowerCase() &&
-      password === PATIENT_CREDENTIALS.password
-    ) {
-      const user = {
-        name: PATIENT_CREDENTIALS.name,
-        email: PATIENT_CREDENTIALS.email,
-        role: PATIENT_CREDENTIALS.role,
-        isAuthenticated: true
-      };
-      localStorage.setItem('medicare_patient_user', JSON.stringify(user));
-      return { success: true, user };
+  async authenticatePatient(email, password) {
+    try {
+      const response = await fetch(API_URL + 'login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const user = {
+          id: data._id,
+          name: data.fullName,
+          email: data.email,
+          role: data.role,
+          token: data.token,
+          isAuthenticated: true,
+        };
+        localStorage.setItem('medicare_patient_user', JSON.stringify(user));
+        return { success: true, user };
+      } else {
+        return { success: false, message: data.message || 'Invalid email or password.' };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, message: 'Server error. Please try again later.' };
     }
-    return {
-      success: false,
-      message: 'Invalid email or password. Please check your credentials and try again.'
-    };
+  },
+
+  async registerPatient(patientData) {
+    try {
+      const response = await fetch(API_URL + 'register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(patientData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const user = {
+          id: data._id,
+          name: data.fullName,
+          email: data.email,
+          role: 'patient',
+          token: data.token,
+          isAuthenticated: true,
+        };
+        localStorage.setItem('medicare_patient_user', JSON.stringify(user));
+        return { success: true, user };
+      } else {
+        return { success: false, message: data.message || 'Registration failed.' };
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      return { success: false, message: 'Server error. Please try again later.' };
+    }
   },
 
   getCurrentPatient() {
