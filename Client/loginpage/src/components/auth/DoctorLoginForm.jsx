@@ -10,10 +10,10 @@ export default function DoctorLoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const res = authService.authenticateDoctor(doctorId, password);
+    const res = await authService.authenticateDoctor(doctorId, password);
     if (res.success) {
       navigate('/doctor/dashboard');
     } else {

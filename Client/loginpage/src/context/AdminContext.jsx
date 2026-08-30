@@ -22,7 +22,7 @@ export const AdminProvider = ({ children }) => {
   const [adminProfile, setAdminProfile] = useState(defaultProfile);
   const [hospitalInfo, setHospitalInfo] = useState(initialHospitalInfo);
   const [doctors, setDoctors] = useState(initialDoctors);
-  const [doctorRequests, setDoctorRequests] = useState(initialDoctorRequests);
+  const [doctorRequests, setDoctorRequests] = useState([]); // Default empty array, fetch from API
   const [patients, setPatients] = useState(initialPatients);
   const [appointments, setAppointments] = useState(initialAppointments);
   const [notifications, setNotifications] = useState(initialNotifications);
@@ -37,9 +37,42 @@ export const AdminProvider = ({ children }) => {
     }, 4000);
   };
 
-  const approveDoctorRequest = (requestId) => {
+  useEffect(() => {
+    // Fetch doctor requests on mount
+    const fetchRequests = async () => {
+      const reqs = await authService.getDoctorRequests();
+      // Map backend fields to frontend expected fields if needed, or just use directly
+      const mapped = reqs.map(r => ({
+        id: r._id,
+        name: r.fullName,
+        email: r.email,
+        phone: r.phoneNumber,
+        age: r.age,
+        gender: r.gender,
+        address: r.address,
+        specialty: r.specialization,
+        degree: r.medicalDegree,
+        college: r.medicalCollege,
+        licenseNumber: r.registrationLicenceNumber,
+        preferredDepartment: r.department,
+        experience: r.yearsOfExperience,
+        status: r.status === 'pending' ? 'Pending' : r.status,
+        date: new Date(r.createdAt).toLocaleDateString()
+      }));
+      setDoctorRequests(mapped);
+    };
+    fetchRequests();
+  }, []);
+
+  const approveDoctorRequest = async (requestId) => {
     const request = doctorRequests.find(r => r.id === requestId);
     if (!request) return;
+
+    const response = await authService.acceptDoctorRequest(requestId);
+    if (!response.success) {
+      showAlert(response.message || "Failed to approve request", "error");
+      return;
+    }
 
     // 1. Create a new doctor from request info
     const newDoctor = {
@@ -66,8 +99,8 @@ export const AdminProvider = ({ children }) => {
     // 2. Update Doctors List
     setDoctors(prev => [...prev, newDoctor]);
 
-    // 3. Update Request Status to Approved
-    setDoctorRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'Approved' } : r));
+    // 3. Remove request from list since it's deleted in backend
+    setDoctorRequests(prev => prev.filter(r => r.id !== requestId));
 
     // 4. Log Admin Activity
     const newActivity = {
@@ -94,12 +127,18 @@ export const AdminProvider = ({ children }) => {
     showAlert("Doctor request approved successfully.", "success");
   };
 
-  const rejectDoctorRequest = (requestId) => {
+  const rejectDoctorRequest = async (requestId) => {
     const request = doctorRequests.find(r => r.id === requestId);
     if (!request) return;
 
-    // 1. Update Request Status to Rejected
-    setDoctorRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'Rejected' } : r));
+    const response = await authService.rejectDoctorRequest(requestId);
+    if (!response.success) {
+      showAlert(response.message || "Failed to reject request", "error");
+      return;
+    }
+
+    // 1. Remove request from list
+    setDoctorRequests(prev => prev.filter(r => r.id !== requestId));
 
     // 2. Log Admin Activity
     const newActivity = {

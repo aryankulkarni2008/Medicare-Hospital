@@ -1,13 +1,41 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { authService } from '../../services/authService';
 
 export default function DoctorRegister() {
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '', age: '', gender: '', email: '', phoneNumber: '', address: '',
+    specialization: '', yearsOfExperience: '', medicalDegree: '', medicalCollege: '',
+    registrationLicenceNumber: '', department: '', previousHospital: '',
+    preferredDoctorId: '', password: '', confirmPassword: ''
+  });
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(true);
+    setError(null);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setIsLoading(true);
+    const response = await authService.registerDoctorRequest(formData);
+    setIsLoading(false);
+
+    if (response.success) {
+      setShowModal(true);
+    } else {
+      setError(response.message);
+    }
   };
 
   return (
@@ -38,7 +66,12 @@ export default function DoctorRegister() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-md mb-4">
+              {error}
+            </div>
+          )}
+
           {/* Section 1 */}
           <div className="bg-[#F4F9FC] p-4 rounded-lg border border-[#D9E6EC]">
             <h2 className="text-xs font-bold text-[#126B9E] uppercase tracking-wider mb-3">
@@ -47,16 +80,16 @@ export default function DoctorRegister() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Full Name</label>
-                <input type="text" required placeholder="Dr. Jane Smith" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required placeholder="Dr. Jane Smith" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-bold text-[#102A43] mb-1">Age</label>
-                  <input type="number" required placeholder="38" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                  <input type="number" name="age" value={formData.age} onChange={handleChange} required placeholder="38" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-[#102A43] mb-1">Gender</label>
-                  <select required className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm">
+                  <select name="gender" value={formData.gender} onChange={handleChange} required className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm">
                     <option value="">Select</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -65,16 +98,16 @@ export default function DoctorRegister() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Email Address</label>
-                <input type="email" required placeholder="doctor@medicare.com" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="doctor@medicare.com" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Phone Number</label>
-                <input type="tel" required placeholder="+1 (555) 234-5678" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="+1 (555) 234-5678" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
             </div>
             <div className="mt-3">
               <label className="block text-xs font-bold text-[#102A43] mb-1">Address</label>
-              <input type="text" required placeholder="Residential Address" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+              <input type="text" name="address" value={formData.address} onChange={handleChange} required placeholder="Residential Address" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
             </div>
           </div>
 
@@ -86,24 +119,24 @@ export default function DoctorRegister() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Specialization</label>
-                <input type="text" required placeholder="e.g. Cardiology" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="text" name="specialization" value={formData.specialization} onChange={handleChange} required placeholder="e.g. Cardiology" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Years of Experience</label>
-                <input type="number" required placeholder="10" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="number" name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} required placeholder="10" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Medical Degree</label>
-                <input type="text" required placeholder="e.g. MBBS, MD" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="text" name="medicalDegree" value={formData.medicalDegree} onChange={handleChange} required placeholder="e.g. MBBS, MD" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Medical College / University</label>
-                <input type="text" required placeholder="Johns Hopkins School of Medicine" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="text" name="medicalCollege" value={formData.medicalCollege} onChange={handleChange} required placeholder="Johns Hopkins School of Medicine" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
             </div>
             <div className="mt-3">
               <label className="block text-xs font-bold text-[#102A43] mb-1">Registration / License Number</label>
-              <input type="text" required placeholder="MED-LIC-998231" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+              <input type="text" name="registrationLicenceNumber" value={formData.registrationLicenceNumber} onChange={handleChange} required placeholder="MED-LIC-998231" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
             </div>
           </div>
 
@@ -115,7 +148,7 @@ export default function DoctorRegister() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Preferred Department</label>
-                <select required className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm">
+                <select name="department" value={formData.department} onChange={handleChange} required className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm">
                   <option value="">Select Department</option>
                   <option value="cardiology">Cardiology</option>
                   <option value="neurology">Neurology</option>
@@ -125,7 +158,7 @@ export default function DoctorRegister() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Previous Hospital / Clinic</label>
-                <input type="text" required placeholder="City General Hospital" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="text" name="previousHospital" value={formData.previousHospital} onChange={handleChange} placeholder="City General Hospital" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
             </div>
           </div>
@@ -138,15 +171,15 @@ export default function DoctorRegister() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Preferred Doctor ID</label>
-                <input type="text" required placeholder="DOC-1029" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="text" name="preferredDoctorId" value={formData.preferredDoctorId} onChange={handleChange} required placeholder="DOC-1029" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Password</label>
-                <input type="password" required placeholder="••••••••" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#102A43] mb-1">Confirm Password</label>
-                <input type="password" required placeholder="••••••••" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
+                <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="••••••••" className="w-full px-3 py-2 bg-white border border-[#D9E6EC] rounded text-sm" />
               </div>
             </div>
           </div>
@@ -160,9 +193,10 @@ export default function DoctorRegister() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-[#2490C9] hover:bg-[#126B9E] text-white font-semibold rounded-md shadow-sm transition-all duration-200"
+            disabled={isLoading}
+            className={`w-full py-3 px-4 font-semibold rounded-md shadow-sm transition-all duration-200 ${isLoading ? 'bg-gray-400 text-gray-700 cursor-not-allowed' : 'bg-[#2490C9] hover:bg-[#126B9E] text-white'}`}
           >
-            Send Registration Request to Admin
+            {isLoading ? 'Submitting...' : 'Send Registration Request to Admin'}
           </button>
         </form>
 

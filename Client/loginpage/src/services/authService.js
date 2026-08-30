@@ -18,13 +18,7 @@ const ADMIN_CREDENTIALS = {
   role: 'admin'
 };
 
-// ─── Doctor Demo Credentials ─────────────────────────────────
-const DOCTOR_CREDENTIALS = {
-  email: 'ajinkyashinde2008@gmail.com',
-  password: 'Ajinkya@123',
-  name: 'Ajinkya Shinde',
-  role: 'doctor'
-};
+// DOCTOR_CREDENTIALS demo removed, now using real backend
 
 export const authService = {
   // ─── PATIENT AUTH ─────────────────────────────────────────
@@ -196,24 +190,102 @@ export const authService = {
   },
 
   // ─── DOCTOR AUTH ──────────────────────────────────────────
-  authenticateDoctor(email, password) {
-    if (
-      email.toLowerCase().trim() === DOCTOR_CREDENTIALS.email.toLowerCase() &&
-      password === DOCTOR_CREDENTIALS.password
-    ) {
-      const user = {
-        name: DOCTOR_CREDENTIALS.name,
-        email: DOCTOR_CREDENTIALS.email,
-        role: DOCTOR_CREDENTIALS.role,
-        isAuthenticated: true
-      };
-      localStorage.setItem('medicare_doctor_user', JSON.stringify(user));
-      return { success: true, user };
+  async authenticateDoctor(doctorId, password) {
+    try {
+      const response = await fetch('http://localhost:5000/api/doctors/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ doctorId, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const user = {
+          id: data._id,
+          name: data.fullName,
+          email: data.email,
+          doctorId: data.doctorId,
+          role: data.role,
+          token: data.token,
+          isAuthenticated: true,
+        };
+        localStorage.setItem('medicare_doctor_user', JSON.stringify(user));
+        return { success: true, user };
+      } else {
+        return { success: false, message: data.message || 'Invalid Doctor ID or password.' };
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, message: 'Server error. Please try again later.' };
     }
-    return {
-      success: false,
-      message: 'Invalid Doctor ID or password. Please check your credentials and try again.'
-    };
+  },
+
+  async registerDoctorRequest(doctorData) {
+    try {
+      const response = await fetch('http://localhost:5000/api/doctors/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(doctorData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, message: data.message || 'Registration request failed.' };
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      return { success: false, message: 'Server error. Please try again later.' };
+    }
+  },
+
+  // ─── ADMIN DOCTOR REQUESTS ──────────────────────────────────
+  async getDoctorRequests() {
+    try {
+      const response = await fetch('http://localhost:5000/api/admin/requests/doctors');
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.error('Failed to fetch doctor requests');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching doctor requests:', error);
+      return [];
+    }
+  },
+
+  async acceptDoctorRequest(id) {
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/requests/doctors/${id}/accept`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+      return { success: response.ok, message: data.message };
+    } catch (error) {
+      console.error('Accept request error:', error);
+      return { success: false, message: 'Server error.' };
+    }
+  },
+
+  async rejectDoctorRequest(id) {
+    try {
+      const response = await fetch(`http://localhost:5000/api/admin/requests/doctors/${id}/reject`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+      return { success: response.ok, message: data.message };
+    } catch (error) {
+      console.error('Reject request error:', error);
+      return { success: false, message: 'Server error.' };
+    }
   },
 
   getCurrentDoctor() {

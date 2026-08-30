@@ -5,6 +5,7 @@ const cors = require('cors');
 const connectDB = require('./database');
 const patientRoutes = require('./routes/patientRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/patients', patientRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/doctors', doctorRoutes);
 
 const PORT = process.env.PORT || 5000;
 
