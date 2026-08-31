@@ -21,7 +21,7 @@ export const AdminProvider = ({ children }) => {
 
   const [adminProfile, setAdminProfile] = useState(defaultProfile);
   const [hospitalInfo, setHospitalInfo] = useState(initialHospitalInfo);
-  const [doctors, setDoctors] = useState(initialDoctors);
+  const [doctors, setDoctors] = useState([]); // Default empty array, fetch from API
   const [doctorRequests, setDoctorRequests] = useState([]); // Default empty array, fetch from API
   const [patients, setPatients] = useState(initialPatients);
   const [appointments, setAppointments] = useState(initialAppointments);
@@ -61,7 +61,34 @@ export const AdminProvider = ({ children }) => {
       }));
       setDoctorRequests(mapped);
     };
+    const fetchDoctors = async () => {
+      const docs = await authService.getDoctors();
+      const mappedDocs = docs.map(d => ({
+        id: d.doctorId || d._id,
+        name: d.fullName,
+        specialty: d.specialization,
+        department: d.department,
+        status: "Active",
+        photo: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300",
+        phone: d.phoneNumber,
+        email: d.email,
+        experience: `${d.yearsOfExperience} Years`,
+        location: d.address,
+        degree: d.medicalDegree,
+        college: d.medicalCollege,
+        licenseNumber: d.registrationLicenceNumber,
+        previousClinic: d.previousHospital,
+        hospital: d.previousHospital || 'Medicare Hospital',
+        qualifications: d.medicalDegree || 'MBBS, MD',
+        languages: ['English', 'Hindi'],
+        availableDays: ['Monday', 'Wednesday', 'Friday'],
+        about: `Dr. ${d.fullName} is a specialist in ${d.specialization} with ${d.yearsOfExperience} years of experience. Joined Medicare Hospital recently.`
+      }));
+      setDoctors(mappedDocs);
+    };
+    
     fetchRequests();
+    fetchDoctors();
   }, []);
 
   const approveDoctorRequest = async (requestId) => {
@@ -96,8 +123,30 @@ export const AdminProvider = ({ children }) => {
       photo: request.photo || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300"
     };
 
-    // 2. Update Doctors List
-    setDoctors(prev => [...prev, newDoctor]);
+    // 2. Refresh doctors list from API or append manually
+    const docs = await authService.getDoctors();
+    const mappedDocs = docs.map(d => ({
+      id: d.doctorId || d._id,
+      name: d.fullName,
+      specialty: d.specialization,
+      department: d.department,
+      status: "Active",
+      photo: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300",
+      phone: d.phoneNumber,
+      email: d.email,
+      experience: `${d.yearsOfExperience} Years`,
+      location: d.address,
+      degree: d.medicalDegree,
+      college: d.medicalCollege,
+      licenseNumber: d.registrationLicenceNumber,
+      previousClinic: d.previousHospital,
+      hospital: d.previousHospital || 'Medicare Hospital',
+      qualifications: d.medicalDegree || 'MBBS, MD',
+      languages: ['English', 'Hindi'],
+      availableDays: ['Monday', 'Wednesday', 'Friday'],
+      about: `Dr. ${d.fullName} is a specialist in ${d.specialization} with ${d.yearsOfExperience} years of experience. Joined Medicare Hospital recently.`
+    }));
+    setDoctors(mappedDocs);
 
     // 3. Remove request from list since it's deleted in backend
     setDoctorRequests(prev => prev.filter(r => r.id !== requestId));

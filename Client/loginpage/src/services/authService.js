@@ -108,6 +108,30 @@ export const authService = {
     localStorage.removeItem('medicare_patient_profile');
   },
 
+  // ─── APPOINTMENTS ─────────────────────────────────────────
+  async createAppointment(appointmentData) {
+    try {
+      const response = await fetch('http://localhost:5000/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(appointmentData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return { success: true, data };
+      } else {
+        return { success: false, message: data.message || 'Failed to create appointment.' };
+      }
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      return { success: false, message: 'Server error. Please try again later.' };
+    }
+  },
+
   // ─── ADMIN AUTH ───────────────────────────────────────────
   async authenticateAdmin(email, password) {
     try {
@@ -243,6 +267,36 @@ export const authService = {
     } catch (error) {
       console.error('Registration error:', error);
       return { success: false, message: 'Server error. Please try again later.' };
+    }
+  },
+
+  async getDoctors() {
+    try {
+      const response = await fetch('http://localhost:5000/api/doctors');
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.error('Failed to fetch doctors');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      return [];
+    }
+  },
+
+  async getDoctorById(id) {
+    try {
+      const response = await fetch(`http://localhost:5000/api/doctors/${id}`);
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.error('Failed to fetch doctor by id');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching doctor by id:', error);
+      return null;
     }
   },
 

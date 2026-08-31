@@ -7,17 +7,12 @@ export default function PatientFindDoctorPage({ doctors }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('All Specialties');
 
-  const specialties = [
-    'All Specialties',
-    'Cardiology',
-    'Orthopedics',
-    'Neurology',
-    'Dermatology',
-    'Pediatrics',
-    'Gynecology',
-    'General Medicine',
-    'ENT'
-  ];
+  // Generate specialties dynamically from doctors data
+  const uniqueSpecialties = Array.from(
+    new Set(doctors.filter(d => d.specialty).map(d => d.specialty))
+  ).sort();
+  
+  const specialties = ['All Specialties', ...uniqueSpecialties];
 
   const filteredDoctors = doctors.filter((doc) => {
     const matchesSpecialty = selectedSpecialty === 'All Specialties' || doc.specialty === selectedSpecialty;

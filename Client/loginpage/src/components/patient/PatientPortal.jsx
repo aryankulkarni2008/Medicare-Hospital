@@ -4,7 +4,6 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 // Centralized Mock Data
 import { 
   initialPatient, 
-  initialDoctors, 
   initialAppointments, 
   initialNotifications, 
   initialActivities 
@@ -91,8 +90,73 @@ export default function PatientPortal() {
     fetchProfile();
   }, []);
 
-  const [doctors, setDoctors] = useState(initialDoctors);
-  const [appointments, setAppointments] = useState(initialAppointments);
+  const [doctors, setDoctors] = useState([]); // Fetch from API
+  
+  React.useEffect(() => {
+    const fetchDoctors = async () => {
+      const docs = await authService.getDoctors();
+      const mappedDocs = docs.map(d => ({
+        id: d.doctorId || d._id,
+        name: d.fullName,
+        specialty: d.specialization,
+        department: d.department,
+        availability: "Available Today",
+        photo: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300",
+        phone: d.phoneNumber,
+        email: d.email,
+        experience: `${d.yearsOfExperience} Years`,
+        location: d.address,
+        degree: d.medicalDegree,
+        college: d.medicalCollege,
+        licenseNumber: d.registrationLicenceNumber,
+        previousClinic: d.previousHospital,
+        hospital: d.previousHospital || 'Medicare Hospital',
+        qualifications: d.medicalDegree || 'MBBS, MD',
+        languages: ['English', 'Hindi'],
+        availableDays: ['Monday', 'Wednesday', 'Friday'],
+        availableSlots: ["09:00 AM", "09:30 AM", "10:30 AM", "02:00 PM", "03:30 PM"],
+        about: `Dr. ${d.fullName} is a specialist in ${d.specialization} with ${d.yearsOfExperience} years of experience. Joined Medicare Hospital recently.`,
+        workingHours: "09:00 AM - 05:00 PM"
+      }));
+      setDoctors(mappedDocs);
+    };
+    fetchDoctors();
+  }, []);
+  const [appointments, setAppointments] = useState([]);
+  
+  React.useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const currentUser = authService.getCurrentPatient();
+        if (!currentUser?.id) return;
+        
+        const res = await fetch(`http://localhost:5000/api/appointments/patient/${currentUser.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          // Map backend format to frontend format if needed
+          const mappedAppointments = data.map(app => ({
+            id: app.appointmentId,
+            doctorId: app.doctorId,
+            doctorName: app.doctorName,
+            specialty: app.specialty,
+            department: app.department,
+            doctorPhoto: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300",
+            date: app.date,
+            time: app.time,
+            hospital: app.hospital,
+            status: app.status,
+            reason: app.reason,
+            bookingDate: new Date(app.createdAt).toISOString().split('T')[0],
+            notes: app.rejectReason || ''
+          }));
+          setAppointments(mappedAppointments);
+        }
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      }
+    };
+    fetchAppointments();
+  }, []);
   const [notifications, setNotifications] = useState(initialNotifications);
   const [activities, setActivities] = useState(initialActivities);
 

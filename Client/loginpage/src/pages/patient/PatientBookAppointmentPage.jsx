@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar as CalendarIcon, Clock, FileText, CheckCircle, ArrowLeft } from 'lucide-react';
+import { authService } from '../../services/authService';
 
 export default function PatientBookAppointmentPage({ doctors, onBookAppointment }) {
   const { id } = useParams();
@@ -12,27 +13,50 @@ export default function PatientBookAppointmentPage({ doctors, onBookAppointment 
   const [selectedTime, setSelectedTime] = useState('');
   const [reason, setReason] = useState('');
 
-  const handleConfirm = (e) => {
-    e.preventDefault();
-    if (!selectedDate || !selectedTime || !reason.trim()) return;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const newAppointment = {
-      id: `APT-${Math.floor(1000 + Math.random() * 9000)}`,
-      doctorId: doctor.id,
-      doctorName: doctor.name,
-      specialty: doctor.specialty,
-      department: doctor.department,
-      doctorPhoto: doctor.photo,
+  const handleConfirm = async (e) => {
+    e.preventDefault();
+    if (!selectedDate || !selectedTime || !reason.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    
+    const currentUser = authService.getCurrentPatient();
+    if (!currentUser) {
+      alert("Please log in to book an appointment.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const appointmentData = {
+      patientId: currentUser.id,
+      doctorId: doctor.doctorId || doctor.id, // Support mapped doctor format
       date: selectedDate,
       time: selectedTime,
-      hospital: doctor.hospital,
-      status: 'Pending',
       reason: reason,
-      bookingDate: '2026-08-24'
+      hospital: doctor.hospital || doctor.previousHospital
     };
 
-    onBookAppointment(newAppointment);
-    navigate('/patient/booking-success', { state: { appointment: newAppointment } });
+    const response = await authService.createAppointment(appointmentData);
+    
+    setIsSubmitting(false);
+
+    if (response.success) {
+      const newAppointment = {
+        ...response.data.appointment,
+        doctorName: doctor.name || doctor.fullName,
+        specialty: doctor.specialty || doctor.specialization,
+        department: doctor.department,
+        doctorPhoto: doctor.photo,
+      };
+      
+      if (onBookAppointment) {
+        onBookAppointment(newAppointment);
+      }
+      navigate('/patient/booking-success', { state: { appointment: newAppointment } });
+    } else {
+      alert(response.message);
+    }
   };
 
   const isFormValid = selectedDate && selectedTime && reason.trim().length > 0;
@@ -153,14 +177,14 @@ export default function PatientBookAppointmentPage({ doctors, onBookAppointment 
 
             <button
               onClick={handleConfirm}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isSubmitting}
               className={`w-full py-3 text-xs font-bold rounded-xl transition-all ${
-                isFormValid 
+                isFormValid && !isSubmitting
                   ? 'bg-[#2490C9] text-white hover:bg-[#126B9E] shadow-sm cursor-pointer' 
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
-              Confirm Appointment
+              {isSubmitting ? 'Booking...' : 'Confirm Appointment'}
             </button>
           </div>
         </div>

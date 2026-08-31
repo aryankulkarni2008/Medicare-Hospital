@@ -111,7 +111,49 @@ const loginDoctor = async (req, res) => {
   }
 };
 
+// @desc    Get all approved doctors
+// @route   GET /api/doctors
+// @access  Public
+const getDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.find({}).select('-password');
+    res.json(doctors);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
+
+// @desc    Get a specific approved doctor by ID
+// @route   GET /api/doctors/:id
+// @access  Public
+const getDoctorById = async (req, res) => {
+  try {
+    // Try to find by MongoDB ID first, then by custom doctorId
+    let doctor = null;
+    
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      doctor = await Doctor.findById(req.params.id).select('-password');
+    }
+    
+    if (!doctor) {
+      doctor = await Doctor.findOne({ doctorId: req.params.id }).select('-password');
+    }
+
+    if (doctor) {
+      res.json(doctor);
+    } else {
+      res.status(404).json({ message: 'Doctor not found.' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
+
 module.exports = {
   registerDoctorRequest,
-  loginDoctor
+  loginDoctor,
+  getDoctors,
+  getDoctorById
 };

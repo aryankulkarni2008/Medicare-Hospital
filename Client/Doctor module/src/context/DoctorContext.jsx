@@ -20,11 +20,45 @@ export const DoctorProvider = ({ children }) => {
     name: currentUser?.name || initialDoctorProfile.name,
     email: currentUser?.email || initialDoctorProfile.email,
   });
-  const [appointments, setAppointments] = useState(initialAppointments);
+  const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState(initialPatients);
   const [availability, setAvailability] = useState(initialAvailability);
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
+
+  // Fetch appointments and notifications on load
+  React.useEffect(() => {
+    if (currentUser?.doctorId) {
+      // Fetch Appointments
+      fetch(`http://localhost:5000/api/appointments/doctor/${currentUser.doctorId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            // Map the backend model to match the frontend shape
+            const mappedAppointments = data.map(app => ({
+              ...app,
+              id: app.appointmentId,
+            }));
+            setAppointments(mappedAppointments);
+          }
+        })
+        .catch(err => console.error("Error fetching appointments:", err));
+
+      // Fetch Notifications
+      fetch(`http://localhost:5000/api/notifications/doctor/${currentUser.doctorId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const mappedNotifs = data.map(notif => ({
+              ...notif,
+              id: notif.notificationId,
+            }));
+            setNotifications(mappedNotifs);
+          }
+        })
+        .catch(err => console.error("Error fetching notifications:", err));
+    }
+  }, [currentUser?.doctorId]);
   
   // Real-time slot status overrides map e.g. { "10:00 AM": "Booked" }
   const [slotOverrides, setSlotOverrides] = useState({});
@@ -43,49 +77,68 @@ export const DoctorProvider = ({ children }) => {
   };
 
   // Appointment Actions
-  const acceptAppointment = (id) => {
-    setAppointments((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, status: 'Confirmed' } : app))
-    );
-    const target = appointments.find((a) => a.id === id);
-    const patientName = target ? target.patientName : 'Patient';
-    
-    // Add Notification
-    setNotifications((prev) => [
-      {
-        id: `N-${Date.now()}`,
-        title: 'Appointment Confirmed',
-        description: `You accepted appointment ${id} for ${patientName}.`,
-        time: 'Just now',
-        read: false,
-        type: 'confirmed'
-      },
-      ...prev
-    ]);
-
-    showToast(`Appointment ${id} accepted successfully.`, 'success');
+  const acceptAppointment = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/appointments/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Confirmed' })
+      });
+      if (res.ok) {
+        setAppointments((prev) =>
+          prev.map((app) => (app.id === id ? { ...app, status: 'Confirmed' } : app))
+        );
+        showToast(`Appointment ${id} accepted successfully.`, 'success');
+        
+        // Refetch notifications to get the new one
+        if (currentUser?.doctorId) {
+          fetch(`http://localhost:5000/api/notifications/doctor/${currentUser.doctorId}`)
+            .then(r => r.json())
+            .then(data => {
+              if (Array.isArray(data)) {
+                setNotifications(data.map(notif => ({ ...notif, id: notif.notificationId })));
+              }
+            });
+        }
+      } else {
+        showToast(`Failed to accept appointment ${id}.`, 'danger');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast(`Error accepting appointment ${id}.`, 'danger');
+    }
   };
 
-  const rejectAppointment = (id, reason = 'Doctor unavailable') => {
-    setAppointments((prev) =>
-      prev.map((app) => (app.id === id ? { ...app, status: 'Rejected', reason } : app))
-    );
-    const target = appointments.find((a) => a.id === id);
-    const patientName = target ? target.patientName : 'Patient';
-
-    setNotifications((prev) => [
-      {
-        id: `N-${Date.now()}`,
-        title: 'Appointment Rejected',
-        description: `You rejected appointment ${id} for ${patientName}.`,
-        time: 'Just now',
-        read: false,
-        type: 'cancelled'
-      },
-      ...prev
-    ]);
-
-    showToast(`Appointment ${id} rejected.`, 'danger');
+  const rejectAppointment = async (id, reason = 'Doctor unavailable') => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/appointments/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Rejected', reason })
+      });
+      if (res.ok) {
+        setAppointments((prev) =>
+          prev.map((app) => (app.id === id ? { ...app, status: 'Rejected', rejectReason: reason } : app))
+        );
+        showToast(`Appointment ${id} rejected.`, 'danger');
+        
+        // Refetch notifications to get the new one
+        if (currentUser?.doctorId) {
+          fetch(`http://localhost:5000/api/notifications/doctor/${currentUser.doctorId}`)
+            .then(r => r.json())
+            .then(data => {
+              if (Array.isArray(data)) {
+                setNotifications(data.map(notif => ({ ...notif, id: notif.notificationId })));
+              }
+            });
+        }
+      } else {
+        showToast(`Failed to reject appointment ${id}.`, 'danger');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast(`Error rejecting appointment ${id}.`, 'danger');
+    }
   };
 
   const completeAppointment = (id) => {
@@ -121,15 +174,27 @@ export const DoctorProvider = ({ children }) => {
   };
 
   // Notifications Actions
-  const markNotificationAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+  const markNotificationAsRead = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/api/notifications/${id}/read`, { method: 'PUT' });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      );
+    } catch (error) {
+      console.error('Error marking notification read', error);
+    }
   };
 
-  const markAllNotificationsAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    showToast('All notifications marked as read.', 'info');
+  const markAllNotificationsAsRead = async () => {
+    try {
+      if (currentUser?.doctorId) {
+        await fetch(`http://localhost:5000/api/notifications/doctor/${currentUser.doctorId}/read-all`, { method: 'PUT' });
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+        showToast('All notifications marked as read.', 'info');
+      }
+    } catch (error) {
+      console.error('Error marking all notifications read', error);
+    }
   };
 
   const clearNotifications = () => {
