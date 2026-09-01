@@ -97,10 +97,11 @@ export default function PatientPortal() {
       const docs = await authService.getDoctors();
       const mappedDocs = docs.map(d => ({
         id: d.doctorId || d._id,
+        doctorId: d.doctorId,
         name: d.fullName,
         specialty: d.specialization,
         department: d.department,
-        availability: "Available Today",
+        availability: "Available",
         photo: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300",
         phone: d.phoneNumber,
         email: d.email,
@@ -113,9 +114,7 @@ export default function PatientPortal() {
         hospital: d.previousHospital || 'Medicare Hospital',
         qualifications: d.medicalDegree || 'MBBS, MD',
         languages: ['English', 'Hindi'],
-        availableDays: ['Monday', 'Wednesday', 'Friday'],
-        availableSlots: ["09:00 AM", "09:30 AM", "10:30 AM", "02:00 PM", "03:30 PM"],
-        about: `Dr. ${d.fullName} is a specialist in ${d.specialization} with ${d.yearsOfExperience} years of experience. Joined Medicare Hospital recently.`,
+        about: `Dr. ${d.fullName} is a specialist in ${d.specialization} with ${d.yearsOfExperience} years of experience.`,
         workingHours: "09:00 AM - 05:00 PM"
       }));
       setDoctors(mappedDocs);

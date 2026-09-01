@@ -342,6 +342,117 @@ export const authService = {
     }
   },
 
+  // ─── DOCTOR AVAILABILITY ──────────────────────────────────
+  async getDoctorAvailability(doctorId) {
+    try {
+      const response = await fetch(`http://localhost:5000/api/availability/doctor/${doctorId}`);
+      const text = await response.text();
+      try {
+        const data = JSON.parse(text);
+        return data;
+      } catch (e) {
+        console.error('Non-JSON response from getDoctorAvailability:', text);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching doctor availability:', error);
+      return null;
+    }
+  },
+
+  async getMyAvailability() {
+    try {
+      const doctor = this.getCurrentDoctor();
+      const token = doctor?.token;
+      const doctorId = doctor?.doctorId || doctor?.id;
+
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (doctorId) headers['x-doctor-id'] = doctorId;
+
+      const response = await fetch('http://localhost:5000/api/availability/me', { headers });
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error('Non-JSON response from getMyAvailability:', text);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching my availability:', error);
+      return null;
+    }
+  },
+
+  async updateDoctorAvailability(availabilityData) {
+    try {
+      const doctor = this.getCurrentDoctor();
+      const token = doctor?.token;
+      const doctorId = doctor?.doctorId || doctor?.id;
+
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (doctorId) headers['x-doctor-id'] = doctorId;
+
+      const payload = {
+        doctorId,
+        ...availabilityData,
+      };
+
+      const response = await fetch('http://localhost:5000/api/availability', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      const text = await response.text();
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error('Non-JSON response from updateDoctorAvailability:', text);
+        return { success: false, message: 'Invalid response from server.' };
+      }
+
+      if (response.ok && (data.success || data.availability)) {
+        return { success: true, data };
+      } else {
+        return { success: false, message: data.message || 'Failed to update availability.' };
+      }
+    } catch (error) {
+      console.error('Error updating availability:', error);
+      return { success: false, message: 'Server error. Please try again.' };
+    }
+  },
+
+  async getDoctorSlots(doctorId, date) {
+    try {
+      const response = await fetch(`http://localhost:5000/api/availability/doctor/${doctorId}/slots?date=${date}`);
+      const text = await response.text();
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error('Non-JSON response from getDoctorSlots:', text);
+      }
+
+      if (response.ok && data) {
+        return data;
+      } else {
+        return {
+          available: false,
+          message: data?.message || 'Doctor is not available on this day.',
+          slots: [],
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching doctor slots:', error);
+      return { available: false, message: 'Unable to load time slots.', slots: [] };
+    }
+  },
+
   getCurrentDoctor() {
     const userStr = localStorage.getItem('medicare_doctor_user');
     if (userStr) {
@@ -358,3 +469,4 @@ export const authService = {
     localStorage.removeItem('medicare_doctor_user');
   }
 };
+

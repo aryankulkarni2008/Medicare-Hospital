@@ -37,6 +37,38 @@ export default function App() {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [activities, setActivities] = useState(initialActivities);
 
+  React.useEffect(() => {
+    fetch('http://localhost:5000/api/doctors')
+      .then((res) => res.json())
+      .then((docs) => {
+        if (Array.isArray(docs) && docs.length > 0) {
+          const mappedDocs = docs.map((d) => ({
+            id: d.doctorId || d._id,
+            doctorId: d.doctorId,
+            name: d.fullName,
+            specialty: d.specialization,
+            department: d.department,
+            availability: 'Available',
+            photo: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300',
+            phone: d.phoneNumber,
+            email: d.email,
+            experience: `${d.yearsOfExperience} Years`,
+            location: d.address,
+            degree: d.medicalDegree,
+            college: d.medicalCollege,
+            licenseNumber: d.registrationLicenceNumber,
+            hospital: d.previousHospital || 'Medicare Hospital',
+            qualifications: d.medicalDegree || 'MBBS, MD',
+            languages: ['English', 'Hindi'],
+            about: `Dr. ${d.fullName} is a specialist in ${d.specialization} with ${d.yearsOfExperience} years of experience.`,
+            workingHours: '09:00 AM - 05:00 PM',
+          }));
+          setDoctors(mappedDocs);
+        }
+      })
+      .catch((err) => console.error('Error fetching doctors in standalone patient app:', err));
+  }, []);
+
   // Layout UI State
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);

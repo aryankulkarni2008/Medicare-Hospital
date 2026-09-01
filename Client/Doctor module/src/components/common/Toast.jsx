@@ -35,9 +35,9 @@ export const ToastContainer = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-[0.6rem] max-w-[380px] w-full">
-      {toasts.map((toast) => (
+      {toasts.map((toast, idx) => (
         <div
-          key={toast.id}
+          key={toast.id ? `${toast.id}_${idx}` : `toast_${idx}`}
           className={`bg-white border-l-4 ${getBorderColor(
             toast.type
           )} shadow-[0_10px_15px_-3px_rgba(16,42,67,0.1),0_4px_6px_-2px_rgba(16,42,67,0.05)] rounded-[6px] px-4 py-[0.85rem] flex items-center justify-between gap-3 animate-fade-in`}

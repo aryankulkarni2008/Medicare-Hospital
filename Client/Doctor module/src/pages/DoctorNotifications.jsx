@@ -66,9 +66,9 @@ export const DoctorNotifications = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-[0.85rem]">
-            {notifications.map((n) => (
+            {notifications.map((n, idx) => (
               <div
-                key={n.id}
+                key={n.id ? `${n.id}_${idx}` : `notif_${idx}`}
                 className={`flex items-start gap-4 p-[1.1rem] rounded-lg border transition-all duration-150 ease-in-out ${
                   n.read ? 'bg-white border-[#D9E6EC]' : 'bg-[#E6F4FA] border-[#BEE3F8]'
                 }`}
