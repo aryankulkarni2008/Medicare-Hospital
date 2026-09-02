@@ -2,9 +2,13 @@ const express = require('express');
 const router = express.Router();
 const {
   createAppointmentRequest,
+  getAllAppointments,
   getDoctorAppointments,
   updateAppointmentStatus
 } = require('../controllers/appointmentController');
+
+// GET /api/appointments
+router.get('/', getAllAppointments);
 
 // POST /api/appointments
 router.post('/', createAppointmentRequest);

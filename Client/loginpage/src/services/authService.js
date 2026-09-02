@@ -300,6 +300,83 @@ export const authService = {
     }
   },
 
+  // ─── ADMIN PATIENTS & APPOINTMENTS ────────────────────────
+  async getPatients() {
+    try {
+      const admin = this.getCurrentAdmin();
+      const headers = {};
+      if (admin?.token) {
+        headers['Authorization'] = `Bearer ${admin.token}`;
+      }
+      if (admin?.email) {
+        headers['x-admin-email'] = admin.email;
+      }
+      const response = await fetch('http://localhost:5000/api/patients', { headers });
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.error('Failed to fetch patients:', response.status);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      return [];
+    }
+  },
+
+  async getPatientById(id) {
+    try {
+      const admin = this.getCurrentAdmin();
+      const headers = {};
+      if (admin?.token) {
+        headers['Authorization'] = `Bearer ${admin.token}`;
+      }
+      if (admin?.email) {
+        headers['x-admin-email'] = admin.email;
+      }
+      const response = await fetch(`http://localhost:5000/api/patients/${id}`, { headers });
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.error('Failed to fetch patient by id:', response.status);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching patient by id:', error);
+      return null;
+    }
+  },
+
+  async getAllAppointments() {
+    try {
+      const response = await fetch('http://localhost:5000/api/appointments');
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.error('Failed to fetch appointments:', response.status);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      return [];
+    }
+  },
+
+  async getPatientAppointments(patientId) {
+    try {
+      const response = await fetch(`http://localhost:5000/api/appointments/patient/${patientId}`);
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.error('Failed to fetch patient appointments:', response.status);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching patient appointments:', error);
+      return [];
+    }
+  },
+
   // ─── ADMIN DOCTOR REQUESTS ──────────────────────────────────
   async getDoctorRequests() {
     try {

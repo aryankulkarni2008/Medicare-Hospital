@@ -164,73 +164,7 @@ export const initialAppointments = [
   }
 ];
 
-export const initialPatients = [
-  {
-    id: "P-1001",
-    name: "Aryan Sharma",
-    age: 21,
-    gender: "Male",
-    phone: "+91 98111 22334",
-    email: "aryan.s@example.com",
-    bloodGroup: "O+",
-    regDate: "15 Jan 2025",
-    totalAppointments: 4,
-    lastVisit: "20 Aug 2026",
-    status: "Active"
-  },
-  {
-    id: "P-1002",
-    name: "Rahul Patil",
-    age: 35,
-    gender: "Male",
-    phone: "+91 98222 33445",
-    email: "rahul.patil@example.com",
-    bloodGroup: "B+",
-    regDate: "04 Mar 2025",
-    totalAppointments: 2,
-    lastVisit: "18 Aug 2026",
-    status: "Active"
-  },
-  {
-    id: "P-1003",
-    name: "Sneha Joshi",
-    age: 28,
-    gender: "Female",
-    phone: "+91 98333 44556",
-    email: "sneha.j@example.com",
-    bloodGroup: "A+",
-    regDate: "12 May 2025",
-    totalAppointments: 3,
-    lastVisit: "23 Aug 2026",
-    status: "Active"
-  },
-  {
-    id: "P-1004",
-    name: "Vikram Patel",
-    age: 45,
-    gender: "Male",
-    phone: "+91 98444 55667",
-    email: "vikram.patel@example.com",
-    bloodGroup: "AB+",
-    regDate: "20 Nov 2024",
-    totalAppointments: 5,
-    lastVisit: "14 Aug 2026",
-    status: "Active"
-  },
-  {
-    id: "P-1005",
-    name: "Ananya Rao",
-    age: 52,
-    gender: "Female",
-    phone: "+91 98555 66778",
-    email: "ananya.rao@example.com",
-    bloodGroup: "O-",
-    regDate: "08 Jun 2024",
-    totalAppointments: 6,
-    lastVisit: "02 Aug 2026",
-    status: "Active"
-  }
-];
+
 
 export const initialAvailability = {
   days: {

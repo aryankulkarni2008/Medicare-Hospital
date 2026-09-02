@@ -137,56 +137,7 @@ export const initialDoctorRequests = [
   }
 ];
 
-export const initialPatients = [
-  {
-    id: "pat1",
-    name: "Marcus Aurelius",
-    email: "marcus.aurelius@rome.com",
-    phone: "+1 (555) 444-5555",
-    dob: "1985-04-26",
-    gender: "Male",
-    address: "45 Via Sacra, Rome, Italy",
-    regDate: "2025-01-15",
-    status: "Active",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150"
-  },
-  {
-    id: "pat2",
-    name: "Eleanor Vance",
-    email: "eleanor.v@yahoo.com",
-    phone: "+1 (555) 333-2211",
-    dob: "1994-11-12",
-    gender: "Female",
-    address: "Hill House, Crimson Hills, NY",
-    regDate: "2025-03-22",
-    status: "Active",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150"
-  },
-  {
-    id: "pat3",
-    name: "Bruce Wayne",
-    email: "bruce@waynecorp.com",
-    phone: "+1 (555) 100-2000",
-    dob: "1980-02-19",
-    gender: "Male",
-    address: "Wayne Manor, Gotham City",
-    regDate: "2025-05-10",
-    status: "Active",
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150"
-  },
-  {
-    id: "pat4",
-    name: "Clara Oswald",
-    email: "clara.impossible@tardis.co.uk",
-    phone: "+1 (555) 888-0000",
-    dob: "1990-09-08",
-    gender: "Female",
-    address: "24 Maple Lane, Blackpool, UK",
-    regDate: "2025-06-18",
-    status: "Inactive",
-    photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150"
-  }
-];
+
 
 export const initialAppointments = [
   {
@@ -268,7 +219,7 @@ export const initialNotifications = [
     id: "notif3",
     type: "appointment_update",
     title: "Appointment Cancelled",
-    message: "Patient Clara Oswald cancelled appointment with Dr. Emily Blunt.",
+    message: "Patient generic cancelled appointment with Dr. Emily Blunt.",
     timestamp: "Yesterday",
     isRead: true,
     relatedAppointmentId: "apt6"
@@ -277,7 +228,7 @@ export const initialNotifications = [
     id: "notif4",
     type: "patient_registration",
     title: "New Patient Registered",
-    message: "Patient Clara Oswald successfully registered at MediCare.",
+    message: "Patient generic successfully registered at MediCare.",
     timestamp: "3 days ago",
     isRead: true,
     relatedPatientId: "pat4"
@@ -303,14 +254,14 @@ export const initialActivities = [
     id: "act3",
     type: "appointment_completed",
     title: "Appointment Completed",
-    message: "Dr. Sarah Connor completed appointment with Marcus Aurelius.",
+    message: "Dr. Sarah Connor completed appointment.",
     timestamp: "Today, 10:15 AM"
   },
   {
     id: "act4",
     type: "patient_registered",
     title: "Patient Registered",
-    message: "Bruce Wayne registered as a new patient.",
+    message: "New patient registered.",
     timestamp: "May 10, 2025"
   }
 ];

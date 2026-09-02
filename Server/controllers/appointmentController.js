@@ -144,6 +144,18 @@ const createAppointmentRequest = async (req, res) => {
   }
 };
 
+// @desc    Get all appointments (for Admin dashboard and views)
+// @route   GET /api/appointments
+// @access  Public
+const getAllAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find({}).sort({ createdAt: -1 });
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error fetching all appointments:', error);
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
 
 // @desc    Get all appointments for a specific doctor
 // @route   GET /api/appointments/doctor/:doctorId
@@ -231,6 +243,7 @@ const updateAppointmentStatus = async (req, res) => {
 
 module.exports = {
   createAppointmentRequest,
+  getAllAppointments,
   getDoctorAppointments,
   getPatientAppointments,
   updateAppointmentStatus

@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAdmin } from '../../context/AdminContext';
 import AdminAppointmentSummaryCard from '../../components/admin/AdminAppointmentSummaryCard';
 import { 
   ArrowLeft, 
@@ -13,22 +12,101 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  HeartPulse
+  HeartPulse,
+  Loader
 } from 'lucide-react';
 
 export default function AdminPatientDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { patients, appointments, doctors } = useAdmin();
 
-  // Find patient by route ID
-  const patient = patients.find(p => p.id === id);
+  const [patient, setPatient] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!patient) {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const adminUserStr = localStorage.getItem('medicare_admin_user');
+        const adminUser = adminUserStr ? JSON.parse(adminUserStr) : null;
+        const token = adminUser?.token;
+
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        if (adminUser?.email) headers['x-admin-email'] = adminUser.email;
+
+        // Fetch patient
+        const patientRes = await fetch(`http://localhost:5000/api/patients/${id}`, { headers });
+        if (!patientRes.ok) throw new Error('Patient not found');
+        const patientData = await patientRes.json();
+
+        // Fetch appointments
+        const apptRes = await fetch(`http://localhost:5000/api/appointments/patient/${id}`, { headers });
+        let apptsData = [];
+        if (apptRes.ok) {
+          apptsData = await apptRes.json();
+        }
+
+        // Map patient data
+        const mappedPatient = {
+          id: patientData._id,
+          name: patientData.fullName || 'Not provided',
+          email: patientData.email || 'Not provided',
+          phone: patientData.phone || 'Not provided',
+          dob: patientData.dateOfBirth ? new Date(patientData.dateOfBirth).toLocaleDateString() : 'Not provided',
+          gender: patientData.gender || 'Not provided',
+          address: patientData.address || 'Not provided',
+          regDate: patientData.createdAt ? new Date(patientData.createdAt).toLocaleDateString() : 'Not provided',
+          status: 'Active',
+          photo: "https://ui-avatars.com/api/?name=" + encodeURIComponent(patientData.fullName) + "&background=random",
+        };
+
+        setPatient(mappedPatient);
+        
+        // Map appointments data
+        const mappedAppts = apptsData.map(a => ({
+          id: a.appointmentId || a._id,
+          patientId: a.patientId,
+          doctorId: a.doctorId,
+          doctorName: a.doctorName,
+          specialty: a.specialty,
+          department: a.department,
+          date: a.date,
+          time: a.time,
+          status: a.status,
+          hospital: a.hospital,
+          reason: a.reason
+        }));
+        
+        setAppointments(mappedAppts);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError('Unable to load patient details. Please try again.');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3 text-med-blue">
+          <Loader className="w-8 h-8 animate-spin" />
+          <p className="text-sm font-semibold text-med-navy">Loading patient details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !patient) {
     return (
       <div className="bg-white border border-med-border rounded-xl p-8 text-center space-y-4 max-w-md mx-auto mt-12">
         <h3 className="text-lg font-bold text-med-navy">Patient Not Found</h3>
-        <p className="text-xs text-med-gray font-medium">The patient details you are trying to view do not exist or have been removed.</p>
+        <p className="text-xs text-med-gray font-medium">{error || 'The patient details you are trying to view do not exist.'}</p>
         <Link 
           to="/admin/patients"
           className="inline-block py-2 px-4 text-xs font-semibold text-white bg-med-blue hover:bg-med-blue-hover rounded-lg transition-colors"
@@ -39,14 +117,13 @@ export default function AdminPatientDetailsPage() {
     );
   }
 
-  // Get appointments related to this patient
-  const patientAppts = appointments.filter(a => a.patientId === patient.id);
-
+  const patientAppts = appointments;
+  
   // Calculate metrics
   const totalCount = patientAppts.length;
   const completedCount = patientAppts.filter(a => a.status === 'Completed').length;
   const upcomingCount = patientAppts.filter(a => a.status === 'Confirmed' || a.status === 'Pending').length;
-  const cancelledCount = patientAppts.filter(a => a.status === 'Cancelled').length;
+  const cancelledCount = patientAppts.filter(a => a.status === 'Cancelled' || a.status === 'Rejected').length;
 
   return (
     <div className="space-y-6">
@@ -200,15 +277,13 @@ export default function AdminPatientDetailsPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {patientAppts.map((appt) => {
-                  // Find doctor details dynamically using doctorId - NO HARDCODING
-                  const doc = doctors.find(d => d.id === appt.doctorId);
                   return (
                     <AdminAppointmentSummaryCard
                       key={appt.id}
                       appointment={appt}
-                      doctorName={doc ? doc.name : 'Unknown Doctor'}
-                      specialty={doc ? doc.specialty : 'N/A'}
-                      department={doc ? doc.department : ''}
+                      doctorName={appt.doctorName || 'Unknown Doctor'}
+                      specialty={appt.specialty || 'N/A'}
+                      department={appt.department || ''}
                     />
                   );
                 })}

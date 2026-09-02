@@ -4,7 +4,6 @@ import {
   initialHospitalInfo,
   initialDoctors,
   initialDoctorRequests,
-  initialPatients,
   initialAppointments,
   initialNotifications,
   initialActivities
@@ -23,8 +22,8 @@ export const AdminProvider = ({ children }) => {
   const [hospitalInfo, setHospitalInfo] = useState(initialHospitalInfo);
   const [doctors, setDoctors] = useState([]); // Default empty array, fetch from API
   const [doctorRequests, setDoctorRequests] = useState([]); // Default empty array, fetch from API
-  const [patients, setPatients] = useState(initialPatients);
-  const [appointments, setAppointments] = useState(initialAppointments);
+  const [patients, setPatients] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [notifications, setNotifications] = useState(initialNotifications);
   const [activities, setActivities] = useState(initialActivities);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -35,6 +34,42 @@ export const AdminProvider = ({ children }) => {
     setTimeout(() => {
       setAlertMessage(null);
     }, 4000);
+  };
+
+  const fetchPatients = async () => {
+    const pts = await authService.getPatients();
+    const mappedPts = pts.map(p => ({
+      id: p._id,
+      name: p.fullName || 'Not provided',
+      email: p.email || 'Not provided',
+      phone: p.phone || 'Not provided',
+      dob: p.dateOfBirth ? new Date(p.dateOfBirth).toLocaleDateString() : 'Not provided',
+      gender: p.gender ? (p.gender.charAt(0).toUpperCase() + p.gender.slice(1)) : 'Not provided',
+      address: p.address || 'Not provided',
+      regDate: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Not provided',
+      status: 'Active',
+      photo: "https://ui-avatars.com/api/?name=" + encodeURIComponent(p.fullName || 'Patient') + "&background=random",
+    }));
+    setPatients(mappedPts);
+  };
+
+  const fetchAppointments = async () => {
+    const appts = await authService.getAllAppointments();
+    const mappedAppts = appts.map(a => ({
+      id: a.appointmentId || a._id,
+      patientId: String(a.patientId),
+      patientName: a.patientName || 'Patient',
+      doctorId: a.doctorId,
+      doctorName: a.doctorName || 'Doctor',
+      specialty: a.specialty || 'General',
+      department: a.department || '',
+      date: a.date,
+      time: a.time,
+      status: a.status,
+      hospital: a.hospital,
+      reason: a.reason
+    }));
+    setAppointments(mappedAppts);
   };
 
   useEffect(() => {
@@ -89,6 +124,8 @@ export const AdminProvider = ({ children }) => {
     
     fetchRequests();
     fetchDoctors();
+    fetchPatients();
+    fetchAppointments();
   }, []);
 
   const approveDoctorRequest = async (requestId) => {
@@ -249,7 +286,9 @@ export const AdminProvider = ({ children }) => {
       markNotificationRead,
       markAllNotificationsRead,
       updateHospitalInfo,
-      updateAdminProfile
+      updateAdminProfile,
+      refreshPatients: fetchPatients,
+      refreshAppointments: fetchAppointments
     }}>
       {children}
       {alertMessage && (

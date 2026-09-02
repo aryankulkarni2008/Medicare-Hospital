@@ -4,7 +4,6 @@ import {
   initialHospitalInfo,
   initialDoctors,
   initialDoctorRequests,
-  initialPatients,
   initialAppointments,
   initialNotifications,
   initialActivities
@@ -17,11 +16,60 @@ export const AdminProvider = ({ children }) => {
   const [hospitalInfo, setHospitalInfo] = useState(initialHospitalInfo);
   const [doctors, setDoctors] = useState(initialDoctors);
   const [doctorRequests, setDoctorRequests] = useState(initialDoctorRequests);
-  const [patients, setPatients] = useState(initialPatients);
-  const [appointments, setAppointments] = useState(initialAppointments);
+  const [patients, setPatients] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [notifications, setNotifications] = useState(initialNotifications);
   const [activities, setActivities] = useState(initialActivities);
   const [alertMessage, setAlertMessage] = useState(null);
+
+  React.useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        const adminUserStr = localStorage.getItem('medicare_admin_user');
+        const adminUser = adminUserStr ? JSON.parse(adminUserStr) : null;
+        const token = adminUser?.token;
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        if (adminUser?.email) headers['x-admin-email'] = adminUser.email;
+        
+        // Fetch real patients
+        const resPatients = await fetch('http://localhost:5000/api/patients', { headers });
+        if (resPatients.ok) {
+          const data = await resPatients.json();
+          const mappedPatients = data.map(p => ({
+            id: p._id,
+            name: p.fullName,
+            email: p.email,
+            phone: p.phone,
+            dob: new Date(p.dateOfBirth).toLocaleDateString(),
+            gender: p.gender,
+            regDate: new Date(p.createdAt).toLocaleDateString(),
+            status: 'Active',
+            photo: "https://ui-avatars.com/api/?name=" + encodeURIComponent(p.fullName) + "&background=random",
+          }));
+          setPatients(mappedPatients);
+        }
+
+        // Fetch real appointments to populate dashboard counts
+        const resAppts = await fetch('http://localhost:5000/api/appointments', { headers });
+        if (resAppts.ok) {
+          const apptData = await resAppts.json();
+          // The dashboard needs appointment objects with date, status, doctorId, etc.
+          const mappedAppts = apptData.map(a => ({
+            id: a._id,
+            patientId: a.patientId,
+            doctorId: a.doctorId,
+            date: a.date,
+            status: a.status
+          }));
+          setAppointments(mappedAppts);
+        }
+      } catch (err) {
+        console.error("Failed to fetch real data in context:", err);
+      }
+    };
+    fetchRealData();
+  }, []);
 
   // Show a temp alert message
   const showAlert = (message, type = 'success') => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
+import { authService } from '../../services/authService';
 import AdminAppointmentSummaryCard from '../../components/admin/AdminAppointmentSummaryCard';
 import { 
   ArrowLeft, 
@@ -21,8 +22,69 @@ export default function AdminPatientDetailsPage() {
   const navigate = useNavigate();
   const { patients, appointments, doctors } = useAdmin();
 
-  // Find patient by route ID
-  const patient = patients.find(p => p.id === id);
+  const [directPatient, setDirectPatient] = React.useState(null);
+  const [directAppts, setDirectAppts] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  // Find patient by route ID from context if available
+  const contextPatient = patients.find(p => p.id === id);
+
+  React.useEffect(() => {
+    const loadDetails = async () => {
+      if (!contextPatient) {
+        setLoading(true);
+        const p = await authService.getPatientById(id);
+        if (p) {
+          setDirectPatient({
+            id: p._id,
+            name: p.fullName || 'Not provided',
+            email: p.email || 'Not provided',
+            phone: p.phone || 'Not provided',
+            dob: p.dateOfBirth ? new Date(p.dateOfBirth).toLocaleDateString() : 'Not provided',
+            gender: p.gender ? (p.gender.charAt(0).toUpperCase() + p.gender.slice(1)) : 'Not provided',
+            address: p.address || 'Not provided',
+            regDate: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Not provided',
+            status: 'Active',
+            photo: "https://ui-avatars.com/api/?name=" + encodeURIComponent(p.fullName || 'Patient') + "&background=random",
+          });
+        }
+        setLoading(false);
+      }
+
+      // Also fetch patient-specific appointments from API
+      const appts = await authService.getPatientAppointments(id);
+      if (Array.isArray(appts) && appts.length > 0) {
+        setDirectAppts(appts.map(a => ({
+          id: a.appointmentId || a._id,
+          patientId: String(a.patientId),
+          doctorId: a.doctorId,
+          doctorName: a.doctorName,
+          specialty: a.specialty,
+          department: a.department,
+          date: a.date,
+          time: a.time,
+          status: a.status,
+          hospital: a.hospital,
+          reason: a.reason
+        })));
+      }
+    };
+
+    loadDetails();
+  }, [id, contextPatient]);
+
+  const patient = contextPatient || directPatient;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3 text-med-blue">
+          <div className="w-8 h-8 border-4 border-med-blue border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-semibold text-med-navy">Loading patient details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!patient) {
     return (
@@ -39,14 +101,15 @@ export default function AdminPatientDetailsPage() {
     );
   }
 
-  // Get appointments related to this patient
-  const patientAppts = appointments.filter(a => a.patientId === patient.id);
+  // Combine appointments from context and direct API fetch
+  const contextAppts = appointments.filter(a => String(a.patientId) === String(patient.id) || a.patientId === patient.id);
+  const patientAppts = directAppts.length > 0 ? directAppts : contextAppts;
 
   // Calculate metrics
   const totalCount = patientAppts.length;
   const completedCount = patientAppts.filter(a => a.status === 'Completed').length;
   const upcomingCount = patientAppts.filter(a => a.status === 'Confirmed' || a.status === 'Pending').length;
-  const cancelledCount = patientAppts.filter(a => a.status === 'Cancelled').length;
+  const cancelledCount = patientAppts.filter(a => a.status === 'Cancelled' || a.status === 'Rejected').length;
 
   return (
     <div className="space-y-6">
@@ -200,15 +263,15 @@ export default function AdminPatientDetailsPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {patientAppts.map((appt) => {
-                  // Find doctor details dynamically using doctorId - NO HARDCODING
-                  const doc = doctors.find(d => d.id === appt.doctorId);
+                  // Find doctor details dynamically using doctorId from existing Doctor collection/model
+                  const doc = doctors.find(d => d.id === appt.doctorId || d.doctorId === appt.doctorId);
                   return (
                     <AdminAppointmentSummaryCard
                       key={appt.id}
                       appointment={appt}
-                      doctorName={doc ? doc.name : 'Unknown Doctor'}
-                      specialty={doc ? doc.specialty : 'N/A'}
-                      department={doc ? doc.department : ''}
+                      doctorName={doc ? doc.name : (appt.doctorName || 'Doctor')}
+                      specialty={doc ? doc.specialty : (appt.specialty || 'Consultation')}
+                      department={doc ? doc.department : (appt.department || '')}
                     />
                   );
                 })}

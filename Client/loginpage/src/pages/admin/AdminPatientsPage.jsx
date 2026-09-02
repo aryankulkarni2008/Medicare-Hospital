@@ -4,8 +4,14 @@ import AdminPatientTable from '../../components/admin/AdminPatientTable';
 import { Search, Users } from 'lucide-react';
 
 export default function AdminPatientsPage() {
-  const { patients } = useAdmin();
+  const { patients, refreshPatients } = useAdmin();
   const [searchTerm, setSearchTerm] = useState('');
+
+  React.useEffect(() => {
+    if (refreshPatients) {
+      refreshPatients();
+    }
+  }, []);
 
   // Filtering patients by Name, Email, Phone or ID
   const filteredPatients = patients.filter(patient => {

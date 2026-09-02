@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   initialDoctorProfile,
-  initialPatients,
   initialNotifications,
 } from '../mock/data';
 
@@ -39,7 +38,7 @@ export const DoctorProvider = ({ children }) => {
     email: currentUser?.email || initialDoctorProfile.email,
   });
   const [appointments, setAppointments] = useState([]);
-  const [patients, setPatients] = useState(initialPatients);
+  const [patients, setPatients] = useState([]);
   
   // Weekly Availability State linked to MongoDB
   const [weeklySchedule, setWeeklySchedule] = useState(defaultWeeklySchedule);

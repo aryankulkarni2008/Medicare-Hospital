@@ -1,11 +1,55 @@
-import React, { useState } from 'react';
-import { useAdmin } from '../../context/AdminContext';
+import React, { useState, useEffect } from 'react';
 import AdminPatientTable from '../../components/admin/AdminPatientTable';
-import { Search, Users } from 'lucide-react';
+import { Search, Users, Loader } from 'lucide-react';
 
 export default function AdminPatientsPage() {
-  const { patients } = useAdmin();
+  const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const adminUserStr = localStorage.getItem('medicare_admin_user');
+        const adminUser = adminUserStr ? JSON.parse(adminUserStr) : null;
+        const token = adminUser?.token;
+
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        if (adminUser?.email) headers['x-admin-email'] = adminUser.email;
+
+        const response = await fetch('http://localhost:5000/api/patients', { headers });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch patients');
+        }
+
+        const data = await response.json();
+        
+        const mappedPatients = data.map(p => ({
+          id: p._id,
+          name: p.fullName || 'Not provided',
+          email: p.email || 'Not provided',
+          phone: p.phone || 'Not provided',
+          dob: p.dateOfBirth ? new Date(p.dateOfBirth).toLocaleDateString() : 'Not provided',
+          gender: p.gender || 'Not provided',
+          regDate: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'Not provided',
+          status: 'Active', // Based on existing logic, assume active for now
+          photo: "https://ui-avatars.com/api/?name=" + encodeURIComponent(p.fullName || 'Unknown') + "&background=random",
+        }));
+
+        setPatients(mappedPatients);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError('Unable to load patients');
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
+  }, []);
 
   // Filtering patients by Name, Email, Phone or ID
   const filteredPatients = patients.filter(patient => {
@@ -17,6 +61,25 @@ export default function AdminPatientsPage() {
       patient.id.toLowerCase().includes(term)
     );
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-3 text-med-blue">
+          <Loader className="w-8 h-8 animate-spin" />
+          <p className="text-sm font-semibold text-med-navy">Loading patients...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-center">
+        <p className="font-semibold">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

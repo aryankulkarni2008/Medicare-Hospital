@@ -21,7 +21,7 @@ export default function AdminPatientTable({ patients = [] }) {
           {patients.length === 0 ? (
             <tr>
               <td colSpan="7" className="py-8 text-center text-med-gray font-medium">
-                No patients found matching the search criteria.
+                No registered patients found
               </td>
             </tr>
           ) : (

@@ -112,8 +112,40 @@ const getPatientProfile = async (req, res) => {
   }
 };
 
+// @desc    Get all patients
+// @route   GET /api/patients
+// @access  Public (should be protected for admin in production)
+const getAllPatients = async (req, res) => {
+  try {
+    const patients = await Patient.find({}).select('-password').sort({ createdAt: -1 });
+    res.json(patients);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Get single patient by ID
+// @route   GET /api/patients/:id
+// @access  Public (should be protected for admin in production)
+const getPatientById = async (req, res) => {
+  try {
+    const patient = await Patient.findById(req.params.id).select('-password');
+    if (patient) {
+      res.json(patient);
+    } else {
+      res.status(404).json({ message: 'Patient not found' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   registerPatient,
   loginPatient,
   getPatientProfile,
+  getAllPatients,
+  getPatientById,
 };
