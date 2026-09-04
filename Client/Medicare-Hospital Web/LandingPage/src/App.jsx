@@ -21,8 +21,8 @@ import {
 // Easily connect your existing Patient, Doctor, and Admin modules here:
 // ============================================================================
 export const ROUTES = {
-  BOOK_APPOINTMENT: 'http://localhost:5173/',
-  LOGIN: 'http://localhost:5173/',
+  BOOK_APPOINTMENT: 'http://localhost:5173',
+  LOGIN: 'http://localhost:5173',
   DOCTOR: '/doctor',
   ADMIN: '/admin'
 };
