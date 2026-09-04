@@ -34,7 +34,7 @@ export default function PatientPortal() {
 
   // If not logged in, redirect to login page
   if (!authService.isLoggedIn()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   const loggedInUser = authService.getCurrentUser();
@@ -234,7 +234,7 @@ export default function PatientPortal() {
   const handleConfirmLogout = () => {
     setShowLogoutModal(false);
     authService.logoutPatient();
-    navigate('/');
+    navigate('/login');
   };
 
   return (

@@ -1,1 +1,1 @@
-export { authService } from '../../../loginpage/src/services/authService';
+export { authService } from '../../../LandingPage/src/services/authService';

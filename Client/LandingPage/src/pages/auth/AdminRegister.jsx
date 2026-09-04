@@ -37,7 +37,7 @@ export default function AdminRegister() {
 
     const result = await authService.registerAdmin(formData);
     if (result.success) {
-      navigate('/');
+      navigate('/login');
     } else {
       setErrorMessage(result.message);
       setIsLoading(false);
@@ -58,7 +58,7 @@ export default function AdminRegister() {
               <span className="text-xs text-[#64748B]">Internal Staff Setup</span>
             </div>
           </div>
-          <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2490C9] hover:text-[#126B9E]">
+          <Link to="/login" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2490C9] hover:text-[#126B9E]">
             <ArrowLeft className="w-4 h-4" />
             Back to Login
           </Link>
@@ -138,7 +138,7 @@ export default function AdminRegister() {
 
           <div className="text-center text-sm text-[#64748B] pt-2">
             Already registered?{' '}
-            <Link to="/" className="text-[#2490C9] font-semibold hover:text-[#126B9E] hover:underline">
+            <Link to="/login" className="text-[#2490C9] font-semibold hover:text-[#126B9E] hover:underline">
               Sign in here
             </Link>
           </div>

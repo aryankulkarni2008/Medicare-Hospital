@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { authService } from '../../../../loginpage/src/services/authService';
+import { authService } from '../../../../LandingPage/src/services/authService';
 import {
   LayoutDashboard,
   User,
@@ -21,7 +21,7 @@ export const Sidebar = ({ isMobileOpen, closeMobileSidebar }) => {
   const handleLogout = () => {
     showToast('Logged out of Doctor Portal successfully.', 'info');
     authService.logoutDoctor();
-    navigate('/');
+    navigate('/login');
   };
 
   const navItems = [

@@ -52,7 +52,7 @@ export default function DoctorRegister() {
               <span className="text-xs text-[#64748B]">Medical Staff Verification Portal</span>
             </div>
           </div>
-          <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2490C9] hover:text-[#126B9E]">
+          <Link to="/login" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#2490C9] hover:text-[#126B9E]">
             <ArrowLeft className="w-4 h-4" />
             Back to Login
           </Link>
@@ -214,7 +214,7 @@ export default function DoctorRegister() {
               Your information has been sent to the MediCare Hospital administration for review.
             </p>
             <Link
-              to="/"
+              to="/login"
               className="inline-block w-full py-2.5 px-4 bg-[#2490C9] hover:bg-[#126B9E] text-white font-semibold rounded-md text-sm"
             >
               Back to Login

@@ -4,7 +4,7 @@ import {
   initialNotifications,
 } from '../mock/data';
 
-import { authService } from '../../../loginpage/src/services/authService';
+import { authService } from '../../../LandingPage/src/services/authService';
 
 const DoctorContext = createContext();
 

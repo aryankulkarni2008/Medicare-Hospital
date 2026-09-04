@@ -49,13 +49,13 @@ export default function AdminPortal() {
 
   // Auth guard — redirect to login if not authenticated as admin
   if (!authService.isAdminLoggedIn()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   const handleLogoutConfirm = () => {
     setLogoutModalOpen(false);
     authService.logoutAdmin();
-    navigate('/');
+    navigate('/login');
   };
 
   return (
