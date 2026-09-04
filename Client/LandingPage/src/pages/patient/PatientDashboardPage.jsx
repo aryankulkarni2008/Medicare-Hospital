@@ -12,6 +12,7 @@ import {
   Activity
 } from 'lucide-react';
 import PatientStatusCard from '../../components/patient/PatientStatusCard';
+import DoctorAvatar from '../../components/common/DoctorAvatar';
 
 export default function PatientDashboardPage({ patient, appointments, activities, onViewAppointmentDetails }) {
   const navigate = useNavigate();
@@ -87,9 +88,9 @@ export default function PatientDashboardPage({ patient, appointments, activities
 
             {nextAppointment ? (
               <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 p-4 rounded-xl bg-[#F4F9FC] border border-[#D9E6EC]/60">
-                <img 
-                  src={nextAppointment.doctorPhoto} 
-                  alt={nextAppointment.doctorName} 
+                <DoctorAvatar 
+                  name={nextAppointment.doctorName}
+                  photo={nextAppointment.doctorPhoto} 
                   className="w-16 h-16 rounded-full object-cover border border-[#D9E6EC]"
                 />
                 <div className="flex-1">

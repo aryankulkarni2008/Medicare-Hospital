@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Award, GraduationCap, Building, Clipboard, Check, X } from 'lucide-react';
+import DoctorAvatar from '../common/DoctorAvatar';
 
 export default function AdminDoctorRequestCard({ request, onAccept, onReject }) {
   // If the status is already approved or rejected, display its final badge
@@ -28,9 +29,9 @@ export default function AdminDoctorRequestCard({ request, onAccept, onReject }) 
         
         {/* Section 1: Personal Details */}
         <div className="flex flex-col sm:flex-row gap-4 items-start pb-5 border-b border-med-border">
-          <img 
-            src={request.photo || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300"} 
-            alt={request.name} 
+          <DoctorAvatar 
+            name={request.name}
+            photo={request.photo || "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300"} 
             className="w-16 h-16 rounded-lg object-cover border border-med-border flex-shrink-0"
           />
           <div className="space-y-1 min-w-0">

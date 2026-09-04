@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Award, DollarSign, BookOpen, GraduationCap, MapPin, Mail, Phone } from 'lucide-react';
+import DoctorAvatar from '../common/DoctorAvatar';
 
 export default function AdminDoctorProfileModal({ doctor, onClose }) {
   if (!doctor) return null;
@@ -19,9 +20,9 @@ export default function AdminDoctorProfileModal({ doctor, onClose }) {
         <div className="p-6">
           {/* Header summary */}
           <div className="flex items-center gap-4 pb-5 border-b border-med-border">
-            <img 
-              src={doctor.photo} 
-              alt={doctor.name} 
+            <DoctorAvatar 
+              name={doctor.name}
+              photo={doctor.photo} 
               className="w-16 h-16 rounded-full object-cover border-2 border-med-light-blue flex-shrink-0"
             />
             <div className="min-w-0">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDoctor } from '../context/DoctorContext';
 import { User, Star, Edit2, Save, X, Mail, Phone, Building, Award, Stethoscope, DollarSign } from 'lucide-react';
+import DoctorAvatar from '../components/common/DoctorAvatar';
 
 export const DoctorProfile = () => {
   const { doctorProfile, updateDoctorProfile } = useDoctor();
@@ -28,9 +29,9 @@ export const DoctorProfile = () => {
       {/* Header Banner Card */}
       <div className="bg-white rounded-xl border border-[#D9E6EC] p-[1.75rem] flex justify-between items-center flex-wrap gap-5 shadow-[0_1px_3px_rgba(16,42,67,0.05)]">
         <div className="flex items-center gap-5">
-          <img
-            src={doctorProfile.avatar}
-            alt={doctorProfile.name}
+          <DoctorAvatar
+            name={doctorProfile.name}
+            photo={doctorProfile.avatar}
             className="w-[86px] h-[86px] rounded-full object-cover border-3 border-[#2490C9] shadow-[0_4px_10px_rgba(36,144,201,0.15)]"
           />
           <div>

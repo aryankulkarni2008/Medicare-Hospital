@@ -11,6 +11,7 @@ import {
   Info,
 } from 'lucide-react';
 import { authService } from '../../services/authService';
+import DoctorAvatar from '../../components/common/DoctorAvatar';
 
 export default function PatientBookAppointmentPage({ doctors, onBookAppointment }) {
   const { id } = useParams();
@@ -363,9 +364,9 @@ export default function PatientBookAppointmentPage({ doctors, onBookAppointment 
 
             {/* Doctor Info Mini */}
             <div className="flex items-center space-x-3 mb-4 p-3 bg-[#F4F9FC] rounded-lg border border-[#D9E6EC]">
-              <img
-                src={currentDoctor.photo}
-                alt={currentDoctor.name}
+              <DoctorAvatar
+                name={currentDoctor.name}
+                photo={currentDoctor.photo}
                 className="w-12 h-12 rounded-full object-cover border border-[#D9E6EC]"
               />
               <div>

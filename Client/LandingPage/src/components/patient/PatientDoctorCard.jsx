@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Award, Clock, MapPin, Calendar } from 'lucide-react';
+import DoctorAvatar from '../common/DoctorAvatar';
 
 export default function PatientDoctorCard({ doctor }) {
   const navigate = useNavigate();
@@ -9,9 +10,9 @@ export default function PatientDoctorCard({ doctor }) {
     <div className="bg-white rounded-xl border border-[#D9E6EC] p-5 shadow-xs hover:shadow-md hover:border-[#2490C9]/50 transition-all flex flex-col justify-between">
       <div>
         <div className="flex items-start space-x-4 mb-4">
-          <img 
-            src={doctor.photo} 
-            alt={doctor.name} 
+          <DoctorAvatar 
+            name={doctor.name}
+            photo={doctor.photo} 
             className="w-16 h-16 rounded-xl object-cover border border-[#D9E6EC] shrink-0"
           />
           <div className="flex-1 min-w-0">

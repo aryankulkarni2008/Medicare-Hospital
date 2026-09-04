@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
+import DoctorAvatar from '../common/DoctorAvatar';
 
 export default function AdminDoctorTable({ doctors = [], getDoctorAppointmentsCount }) {
   return (
@@ -32,9 +33,9 @@ export default function AdminDoctorTable({ doctors = [], getDoctorAppointmentsCo
                 <tr key={doctor.id} className="hover:bg-med-bg/40 transition-colors">
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={doctor.photo}
-                        alt={doctor.name}
+                      <DoctorAvatar
+                        name={doctor.name}
+                        photo={doctor.photo}
                         className="w-10 h-10 rounded-full object-cover border border-med-border flex-shrink-0"
                       />
                       <div className="min-w-0">

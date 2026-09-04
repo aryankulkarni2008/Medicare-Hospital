@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, User, DollarSign, Award } from 'lucide-react';
+import DoctorAvatar from '../common/DoctorAvatar';
 
 export default function AdminDoctorCard({ doctor, appointmentsCount = { total: 0, completed: 0, upcoming: 0 } }) {
   return (
     <div className="bg-white border border-med-border rounded-xl shadow-sm hover:shadow-md hover:border-med-blue/40 transition-all duration-200 ease-out flex flex-col p-5">
       <div className="flex items-center gap-4 pb-4 border-b border-med-border">
-        <img 
-          src={doctor.photo} 
-          alt={doctor.name} 
+        <DoctorAvatar 
+          name={doctor.name}
+          photo={doctor.photo} 
           className="w-14 h-14 rounded-full object-cover border border-med-border flex-shrink-0"
         />
         <div className="min-w-0">

@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { authService } from '../../services/authService';
+import DoctorAvatar from '../../components/common/DoctorAvatar';
 
 export default function PatientDoctorProfilePage({ doctors }) {
   const { id } = useParams();
@@ -104,9 +105,9 @@ export default function PatientDoctorProfilePage({ doctors }) {
 
       {/* Main Profile Header Card */}
       <div className="bg-white rounded-xl border border-[#D9E6EC] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-        <img
-          src={currentDoctor.photo || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300'}
-          alt={currentDoctor.name}
+        <DoctorAvatar
+          name={currentDoctor.name}
+          photo={currentDoctor.photo}
           className="w-28 h-28 rounded-xl object-cover border border-[#D9E6EC] shrink-0"
         />
         <div className="flex-1">

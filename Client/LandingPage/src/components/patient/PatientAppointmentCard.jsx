@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calendar, Clock, MapPin, FileText } from 'lucide-react';
+import DoctorAvatar from '../common/DoctorAvatar';
 
 export default function PatientAppointmentCard({ appointment, onViewDetails, onCancelClick }) {
   const getStatusBadge = (status) => {
@@ -25,9 +26,9 @@ export default function PatientAppointmentCard({ appointment, onViewDetails, onC
       <div>
         <div className="flex items-start justify-between gap-2 mb-4">
           <div className="flex items-center space-x-3">
-            <img 
-              src={appointment.doctorPhoto} 
-              alt={appointment.doctorName} 
+            <DoctorAvatar 
+              name={appointment.doctorName}
+              photo={appointment.doctorPhoto} 
               className="w-12 h-12 rounded-full object-cover border border-[#D9E6EC]"
             />
             <div>

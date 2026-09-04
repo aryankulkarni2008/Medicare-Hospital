@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Calendar, Clock, MapPin, Building, FileText, User } from 'lucide-react';
+import DoctorAvatar from '../common/DoctorAvatar';
 
 export default function PatientAppointmentDetailsModal({ appointment, onClose }) {
   if (!appointment) return null;
@@ -38,9 +39,9 @@ export default function PatientAppointmentDetailsModal({ appointment, onClose })
 
           {/* Doctor Info */}
           <div className="flex items-center space-x-4 p-3 border border-[#D9E6EC] rounded-lg">
-            <img 
-              src={appointment.doctorPhoto} 
-              alt={appointment.doctorName} 
+            <DoctorAvatar 
+              name={appointment.doctorName}
+              photo={appointment.doctorPhoto} 
               className="w-14 h-14 rounded-full object-cover border border-[#D9E6EC]"
             />
             <div>
