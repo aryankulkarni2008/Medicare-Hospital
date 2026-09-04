@@ -111,12 +111,7 @@ export default function AdminLoginForm() {
         )}
       </button>
 
-      <div className="text-center text-sm text-[#64748B] pt-2">
-        Need staff access?{' '}
-        <Link to="/register/admin" className="text-[#2490C9] font-semibold hover:text-[#126B9E] hover:underline">
-          Staff Registration
-        </Link>
-      </div>
+
     </form>
   );
 }

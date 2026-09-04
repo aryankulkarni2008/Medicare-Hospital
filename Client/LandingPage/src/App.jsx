@@ -4,7 +4,7 @@ import LandingPage from './pages/LandingPage';
 import HospitalLogin from './pages/auth/HospitalLogin';
 import PatientRegister from './pages/auth/PatientRegister';
 import DoctorRegister from './pages/auth/DoctorRegister';
-import AdminRegister from './pages/auth/AdminRegister';
+
 import PatientPortal from './components/patient/PatientPortal';
 import AdminPortal from './components/admin/AdminPortal';
 import DoctorPortal from '../../Doctor module/src/App';
@@ -41,7 +41,7 @@ export default function App() {
         <Route path="/login" element={<HospitalLogin />} />
         <Route path="/register/patient" element={<PatientRegister />} />
         <Route path="/register/doctor" element={<DoctorRegister />} />
-        <Route path="/register/admin" element={<AdminRegister />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
